@@ -1,0 +1,42 @@
+
+#al_interface {
+  max-height: calc(100vh - 80px);
+  position: fixed;
+  bottom: 72px;
+  left: 54px; 
+  display: flex;
+  padding: 10px;
+  align-items: flex-end;
+  transition: opacity 0.5s ease;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+#al_toggle {
+  position: fixed;
+  bottom: 90px;
+  left: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+#al_interface.al_hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none; 
+}
+
+#al_controls {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 8px;
+}
+
+#al_actors {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 12px;
+  transform: scale(0.75);
+  transform-origin: left bottom !important;
+}
+
+

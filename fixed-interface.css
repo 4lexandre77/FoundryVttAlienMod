@@ -39,4 +39,9 @@
   transform-origin: left bottom !important;
 }
 
+.actor-container.active {
+  outline: 3px solid #00ffff;
+  box-shadow: 0 0 10px #00ffff;
+  border-radius: 8px;
+}
 

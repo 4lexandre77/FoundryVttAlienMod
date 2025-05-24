@@ -3,7 +3,7 @@
   max-height: calc(100vh - 80px);
   position: fixed;
   bottom: 50px;
-  left: 55px; 
+  left: 62px; 
   display: flex;
   padding: 10px;
   align-items: flex-end;
@@ -12,11 +12,13 @@
   visibility: visible;
   pointer-events: auto;
 }
-#al_toggle {
+#al_side-menu {
   position: fixed;
   bottom: 68px;
   left: 10px;
-  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 3px;
 }
 #al_interface.al_hidden {
     opacity: 0;

@@ -79,16 +79,18 @@ Hooks.once('ready', () => {
         return;
       }
 
-      const tokens = actor.getActiveTokens(true, true);
+      const tokens = canvas.tokens.placeables.filter(t => t.actor?.id === actor.id && t.isOwner);
       if (tokens.length === 0) {
         ui.notifications.warn("Aucun token actif pour ce personnage sur la scène.");
         return;
       }
 
       const token = tokens[0];
-      canvas.tokens.releaseAll();
-      await token.control();
 
+      // Contrôle du token
+      await token.control({ releaseOthers: true });
+
+      // Ajout de la classe "active" au conteneur cliqué, suppression des autres
       document.querySelectorAll('.actor-container').forEach(el => el.classList.remove('active'));
       actorContainer.classList.add('active');
     });
@@ -130,4 +132,51 @@ Hooks.once('ready', () => {
     }
   });
   document.body.appendChild(toggleBtn);
+
+
+
+
+
+
+
+  /*Sélecteur background*/
+  if (!game.user.isGM) return; // Ne montrer le menu que pour les MJ
+
+  // Crée le conteneur
+  const dropdown = document.createElement("select");
+  dropdown.id = "al_background-selector";
+
+  // Liste des backgrounds (ajoute ou modifie les options ici)
+  const backgrounds = {
+    "Sélectionnez un fond...": "",
+    "Accueil": "my-assets/alien/alien-earth.jpg",
+    "Container": "my-assets/alien/chambres.jpg",
+    "Cargo": "my-assets/alien/cargo.jpg"
+  };
+
+  // Remplit les options
+  for (const [label, path] of Object.entries(backgrounds)) {
+    const option = document.createElement("option");
+    option.value = path;
+    option.textContent = label;
+    dropdown.appendChild(option);
+  }
+
+  // Gère le changement
+  dropdown.addEventListener("change", async (e) => {
+    const selected = e.target.value;
+    if (!selected) return;
+
+    await game.scenes.active.update({
+      background: {
+        src: selected
+      }
+    });
+
+    ui.notifications.info("Image de fond changée !");
+  });
+
+  // Ajoute au DOM
+  document.body.appendChild(dropdown);
+  
 });

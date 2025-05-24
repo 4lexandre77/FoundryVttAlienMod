@@ -2,8 +2,8 @@
 #al_interface {
   max-height: calc(100vh - 80px);
   position: fixed;
-  bottom: 72px;
-  left: 54px; 
+  bottom: 50px;
+  left: 55px; 
   display: flex;
   padding: 10px;
   align-items: flex-end;
@@ -14,7 +14,7 @@
 }
 #al_toggle {
   position: fixed;
-  bottom: 90px;
+  bottom: 68px;
   left: 10px;
   background-color: rgba(0, 0, 0, 0.5);
 }
@@ -38,10 +38,29 @@
   transform: scale(0.75);
   transform-origin: left bottom !important;
 }
-
-.actor-container.active {
-  outline: 3px solid #00ffff;
+.actor-container img{
+  margin-bottom: 4px;
+}
+.actor-container.active img{
+  outline: 1px solid #00ffff;
   box-shadow: 0 0 10px #00ffff;
   border-radius: 8px;
 }
 
+
+/*foundry default interface*/
+#players:not(.expanded) .players-list{
+  display: none;
+}
+textarea:focus {
+  color: #ffffff;
+}
+
+#al_background-selector{
+  position: fixed;
+  top: 16px;
+  left: 325px;
+  z-index: 100;
+  width: 180px;
+}
+  

@@ -228,13 +228,17 @@ Hooks.on("renderChatMessage", async (message, html, data) => {
   const dropdown = document.createElement("select");
   dropdown.id = "al_background-selector";
 
-  // Liste des backgrounds (ajoute ou modifie les options ici)
+  // Liste des backgrounds
   const backgrounds = {
     "Sélectionnez un fond...": "",
     "Accueil": "my-assets/alien/alien-earth.jpg",
     "Container": "my-assets/alien/chambres.jpg",
-    "Cargo": "my-assets/alien/cargo.jpg"
+    "Cargo": "my-assets/alien/cargo.jpg",
+    "Passerelle": "my-assets/alien/passerelle.jpg"
   };
+
+  // ID de la scène cible
+  const sceneId = "ZtYaEgYB570Mb4SG";
 
   // Remplit les options
   for (const [label, path] of Object.entries(backgrounds)) {
@@ -249,16 +253,23 @@ Hooks.on("renderChatMessage", async (message, html, data) => {
     const selected = e.target.value;
     if (!selected) return;
 
-    await game.scenes.active.update({
+    const targetScene = game.scenes.get(sceneId);
+    if (!targetScene) {
+      ui.notifications.error(`Scène avec ID "${sceneId}" introuvable.`);
+      return;
+    }
+
+    await targetScene.update({
       background: {
         src: selected
       }
     });
 
-    ui.notifications.info("Image de fond changée !");
+    ui.notifications.info(`Image de fond mise à jour pour la scène sélectionnée.`);
   });
 
   // Ajoute au DOM
   document.body.appendChild(dropdown);
+
   
 });

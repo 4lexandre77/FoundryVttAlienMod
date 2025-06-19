@@ -3,12 +3,16 @@ Hooks.once('ready', () => {
   # Persos Selector
   \*------------------------*/
   const actorIds = [
-    "exLz5VadImLmTSEj",
-    "SlbqsxdyQAq56zNp",
-    "XXqGPU6tUU4eskVS",
-    "TyjlUgog6hZ8KstP",
-    "k5C2sNYGEooubICx",
-    "HUnu7zUGVGzThmLH"
+    //"prPk8MrRtrw4MzeI", // Scientifique
+    //"hMnFqdzMILqYAY1Y", // Prolo
+    //"MHDL65YmPXKBlAGo", // Gamin
+    "exLz5VadImLmTSEj", //Agent
+    "SlbqsxdyQAq56zNp", //Pilote
+    "XXqGPU6tUU4eskVS", //Marine
+    "TyjlUgog6hZ8KstP", //Marshall
+    "k5C2sNYGEooubICx", // Medecin
+    //"HUnu7zUGVGzThmLH", // Officer
+    "OFg0oG0d7qsEVFRY" //Testeur
   ];
 
   const controlSizedefault = 0.75;
@@ -231,7 +235,8 @@ Hooks.on("renderChatMessage", async (message, html, data) => {
   // Liste des backgrounds
   const backgrounds = {
     "Sélectionnez un fond...": "",
-    "Accueil": "my-assets/alien/alien-earth.jpg",
+    "Fond Noir": "my-assets/alien/blacksquare.jpg",
+    "Accueil": "my-assets/alien/Orpheus-Accueil.jpg",
     "Container": "my-assets/alien/chambres.jpg",
     "Cargo": "my-assets/alien/cargo.jpg",
     "Passerelle": "my-assets/alien/passerelle.jpg"

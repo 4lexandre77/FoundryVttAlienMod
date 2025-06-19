@@ -1,0 +1,246 @@
+Hooks.once('ready', () => {
+  if (!game.user.isGM) return;
+
+  /*------------------------*\
+  # Persos Selector
+  \*------------------------*/
+  const actorIds = [
+    "exLz5VadImLmTSEj",
+    "SlbqsxdyQAq56zNp",
+    "XXqGPU6tUU4eskVS",
+    "TyjlUgog6hZ8KstP",
+    "k5C2sNYGEooubICx",
+    "HUnu7zUGVGzThmLH"
+  ];
+
+  const controlSizedefault = 0.75;
+  const containerId = 'al_interface';
+
+  // Supprimer l'ancien conteneur s'il existe
+  const old = document.getElementById(containerId);
+  if (old) old.remove();
+
+  // Création des conteneurs
+  const container = document.createElement('div');
+  container.id = containerId;
+
+  const subContainer = document.createElement('div');
+  subContainer.id = 'al_actors';
+  subContainer.style.transform = `scale(${controlSizedefault})`;
+  subContainer.style.transformOrigin = 'bottom';
+
+  const controlContainer = document.createElement('div');
+  controlContainer.id = 'al_controls';
+
+  const buttonSizeInc = document.createElement('button');
+  const buttonSizeDec = document.createElement('button');
+  buttonSizeInc.textContent = '+';
+  buttonSizeDec.textContent = '−';
+  controlContainer.appendChild(buttonSizeInc);
+  controlContainer.appendChild(buttonSizeDec);
+
+  document.body.appendChild(container);
+  container.appendChild(controlContainer);
+  container.appendChild(subContainer);
+
+  let currentScale = controlSizedefault;
+  function updateScale() {
+    subContainer.style.transform = `scale(${currentScale})`;
+  }
+
+  buttonSizeInc.addEventListener('click', () => {
+    if (currentScale < 1.5) {
+      currentScale = Math.min(1.5, currentScale + 0.05);
+      updateScale();
+    }
+  });
+
+  buttonSizeDec.addEventListener('click', () => {
+    if (currentScale > 0.2) {
+      currentScale = Math.max(0.2, currentScale - 0.05);
+      updateScale();
+    }
+  });
+
+  const createActorDisplay = (actorId) => {
+    const actor = game.actors.get(actorId);
+    if (!actor) return;
+
+    const actorContainer = document.createElement('div');
+    actorContainer.classList.add('actor-container');
+
+    const img = document.createElement('img');
+    img.src = actor.img;
+    img.alt = actor.name;
+    img.style.width = "175px";
+    img.style.height = "175px";
+    img.style.cursor = "pointer";
+
+    img.addEventListener("click", async () => {
+      if (!actor.isOwner) {
+        ui.notifications.warn("Tu ne contrôles pas ce personnage.");
+        return;
+      }
+
+      const tokens = canvas.tokens.placeables.filter(t => t.actor?.id === actor.id && t.isOwner);
+      if (tokens.length === 0) {
+        ui.notifications.warn("Aucun token actif pour ce personnage sur la scène.");
+        return;
+      }
+
+      const token = tokens[0];
+      await token.control({ releaseOthers: true });
+
+      document.querySelectorAll('.actor-container').forEach(el => el.classList.remove('active'));
+      actorContainer.classList.add('active');
+    });
+
+    actorContainer.addEventListener("dblclick", () => {
+      actor.sheet.render(true);
+    });
+
+    const nameDiv = document.createElement('div');
+    const updateStats = () => {
+      const health = actor.system.header?.health?.value ?? "?";
+      const stress = actor.system.header?.stress?.value ?? "?";
+      nameDiv.textContent = `${actor.name} : ${health} - ${stress}`;
+    };
+    updateStats();
+
+    actorContainer.appendChild(img);
+    actorContainer.appendChild(nameDiv);
+    subContainer.appendChild(actorContainer);
+
+    Hooks.on("updateActor", (updatedActor) => {
+      if (updatedActor.id === actorId) updateStats();
+    });
+  };
+
+  actorIds.forEach(createActorDisplay);
+
+  /*------------------------*\
+  # Side Menu
+  \*------------------------*/
+  const sideMenu = document.createElement('div');
+  sideMenu.id = 'al_side-menu';
+
+  const toggleBtn = document.createElement('button');
+  toggleBtn.textContent = 'Persos';
+  toggleBtn.id = 'al_toggle';
+  toggleBtn.addEventListener('click', () => {
+    container.classList.toggle('al_hidden');
+  });
+  sideMenu.appendChild(toggleBtn);
+
+  const actionsBtn = document.createElement('button');
+  actionsBtn.textContent = 'Actions';
+  actionsBtn.id = 'al_actionsBtn';
+  actionsBtn.addEventListener('click', async () => {
+    const uuid = 'JournalEntry.tdBmSD6KxyQBgt3K.JournalEntryPage.Szdmzfgm6SYKPgdN';
+    const page = await fromUuid(uuid);
+    if (page && page.parent) {
+      await page.parent.sheet.render(true, { pageId: page.id });
+    } else {
+      ui.notifications.warn("Impossible d’ouvrir la page du journal.");
+    }
+  });
+  sideMenu.appendChild(actionsBtn);
+
+  // BOUTON RED LIGHT
+  const redLightBtn = document.createElement('button');
+  redLightBtn.textContent = 'RedLight';
+  redLightBtn.id = 'al_redLight';
+  redLightBtn.addEventListener('click', () => {
+    const isActive = !!document.getElementById("al_redlight_overlay");
+    game.socket.emit("module.redlight-toggle", { active: !isActive });
+    toggleRedLightOverlay(!isActive);
+  });
+  sideMenu.appendChild(redLightBtn);
+
+  document.body.appendChild(sideMenu);
+
+  // DROPDOWN POUR BACKGROUND
+  const dropdownBg = document.createElement("select");
+  dropdownBg.id = "al_background-selector";
+
+  const backgrounds = {
+    "Sélectionnez un fond...": "",
+    "Accueil": "my-assets/alien/alien-earth.jpg",
+    "Container": "my-assets/alien/chambres.jpg",
+    "Cargo": "my-assets/alien/cargo.jpg",
+    "Passerelle": "my-assets/alien/passerelle.jpg"
+  };
+  const sceneId = "ZtYaEgYB570Mb4SG";
+
+  for (const [label, path] of Object.entries(backgrounds)) {
+    const option = document.createElement("option");
+    option.value = path;
+    option.textContent = label;
+    dropdownBg.appendChild(option);
+  }
+
+  dropdownBg.addEventListener("change", async (e) => {
+    const selected = e.target.value;
+    if (!selected) return;
+
+    const targetScene = game.scenes.get(sceneId);
+    if (!targetScene) {
+      ui.notifications.error(`Scène avec ID "${sceneId}" introuvable.`);
+      return;
+    }
+
+    await targetScene.update({
+      background: {
+        src: selected
+      }
+    });
+
+    ui.notifications.info("Image de fond mise à jour pour la scène sélectionnée.");
+  });
+
+  document.body.appendChild(dropdownBg);
+});
+
+// Réception de l’activation Red Light via socket
+Hooks.once("ready", () => {
+  game.socket.on("module.redlight-toggle", (data) => {
+    toggleRedLightOverlay(data.active);
+  });
+});
+
+// Fonction pour afficher/retirer l’overlay rouge animé
+function toggleRedLightOverlay(enable) {
+  let overlay = document.getElementById("al_redlight_overlay");
+
+  if (enable && !overlay) {
+    overlay = document.createElement("div");
+    overlay.id = "al_redlight_overlay";
+    overlay.style.position = "fixed";
+    overlay.style.top = 0;
+    overlay.style.left = 0;
+    overlay.style.width = "100vw";
+    overlay.style.height = "100vh";
+    overlay.style.backgroundColor = "rgba(255, 0, 0, 0.2)";
+    overlay.style.pointerEvents = "none";
+    overlay.style.zIndex = "9999";
+    overlay.style.animation = "fadeRed 2s infinite";
+    document.body.appendChild(overlay);
+
+    if (!document.getElementById("al_redlight_style")) {
+      const style = document.createElement("style");
+      style.id = "al_redlight_style";
+      style.textContent = `
+        @keyframes fadeRed {
+          0% { opacity: 0.1; }
+          50% { opacity: 0.4; }
+          100% { opacity: 0.1; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+
+  if (!enable && overlay) {
+    overlay.remove();
+  }
+}
